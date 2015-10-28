@@ -6,10 +6,9 @@ process.on('uncaughtException', function(err) {
 
 
 /********************** Require tests *****************************************/
-var upgrade_recovery_firmware = require('./upgrade_recovery_firmware');
-var upgrade_primary_firmware = require('./upgrade_primary_firmware');
+var install_calibration_firmware = require('./install_calibration_firmware');
 
 
 /********************** Perform tests *****************************************/
-exports.upgrade_recovery_firmware = upgrade_recovery_firmware;
-exports.upgrade_primary_firmware = upgrade_primary_firmware.tests;								// Passing
+exports.install_calibration_firmware = install_calibration_firmware;						// Passing
+
