@@ -93,9 +93,6 @@ var device_tests = {
 			test.done();
 		});
 	},
-	'get current recovery firmware version': function(test) {
-		
-	},
 	'upgradeFirmware': function(test) {
 		var fwVersionNum = 0.6604;
 
@@ -182,6 +179,7 @@ var device_tests = {
 			} else {
 				console.log('  - Skipping Recovery FW Update, already', res);
 				test.ok(true);
+				test.done();
 			}
 		})
 	},

@@ -95,72 +95,85 @@ var device_tests = {
 	},
 	'upgradeFirmware': function(test) {
 		var fwVersionNum = 1.0070;
-		var fwURL = fws[fwVersionNum.toFixed(4)];
-		console.log('  - fwURL:', fwURL);
-		var lastPercent = 0;
-		var percentListener = function(value) {
-			var defered = q.defer();
-			// console.log("  - ", value.toString() + '%');
-			lastPercent = value;
-			defered.resolve();
-			return defered.promise;
-		};
-		var stepListener = function(value) {
-			var defered = q.defer();
-			console.log("  - " + value.toString());
-			defered.resolve();
-			return defered.promise;
-		};
-		var deviceDisconnectEventReceived = false;
-		var deviceReconnectEventReceived = false;
-		device.on(DEVICE_DISCONNECTED, function(data) {
-			console.log('  - Device disconnected');
-			deviceDisconnectEventReceived = true;
-		});
-		device.on(DEVICE_RECONNECTED, function(data) {
-			console.log('  - Device reconnected');
-			deviceReconnectEventReceived = true;
-		});
 
-		device.updateFirmware(fwURL, percentListener, stepListener)
-		.then(
-			function(res) {
-				// The result is a new device object
-				// console.log('Upgrade Success', res);
-				// console.log('Number of created devices', ljDevice.getNumCreatedDevices());
-				test.strictEqual(lastPercent, 100, 'Highest Percentage isnt 100%');
-				var ljmDevice = device.getDevice();
-				// console.log(
-				// 	'Reading device FW version',
-				// 	ljmDevice.handle,
-				// 	ljmDevice.deviceType,
-				// 	ljmDevice.isHandleValid
-				// );
+		function performUpdate() {
+			var fwURL = fws[fwVersionNum.toFixed(4)];
+			console.log('  - fwURL:', fwURL);
+			var lastPercent = 0;
+			var percentListener = function(value) {
+				var defered = q.defer();
+				// console.log("  - ", value.toString() + '%');
+				lastPercent = value;
+				defered.resolve();
+				return defered.promise;
+			};
+			var stepListener = function(value) {
+				var defered = q.defer();
+				console.log("  - " + value.toString());
+				defered.resolve();
+				return defered.promise;
+			};
+			var deviceDisconnectEventReceived = false;
+			var deviceReconnectEventReceived = false;
+			device.on(DEVICE_DISCONNECTED, function(data) {
+				console.log('  - Device disconnected');
+				deviceDisconnectEventReceived = true;
+			});
+			device.on(DEVICE_RECONNECTED, function(data) {
+				console.log('  - Device reconnected');
+				deviceReconnectEventReceived = true;
+			});
 
-				// Make sure that the device disconnect & reconnect events get
-				// fired.
-				test.ok(deviceDisconnectEventReceived, 'Disconnect event should have been detected');
-				test.ok(deviceReconnectEventReceived, 'Reconnect event should have been detected');
-				device.read('FIRMWARE_VERSION')
-				.then(function(res) {
-					test.strictEqual(res.toFixed(4), fwVersionNum.toFixed(4), 'Firmware Not Upgraded');
-					test.done();
-				});
-			}, function(err) {
-				console.log("Failed to upgrade (upgrade test)", err);
-				console.log('');
-				console.log('');
-				test.ok(true, 'Failed to upgrade device: ' + JSON.stringify(err));
-				device.read('FIRMWARE_VERSION')
-				.then(function(res) {
-					console.log('Device is still responding to messages', res);
-					test.done();
+			device.updateFirmware(fwURL, percentListener, stepListener)
+			.then(
+				function(res) {
+					// The result is a new device object
+					// console.log('Upgrade Success', res);
+					// console.log('Number of created devices', ljDevice.getNumCreatedDevices());
+					test.strictEqual(lastPercent, 100, 'Highest Percentage isnt 100%');
+					var ljmDevice = device.getDevice();
+					// console.log(
+					// 	'Reading device FW version',
+					// 	ljmDevice.handle,
+					// 	ljmDevice.deviceType,
+					// 	ljmDevice.isHandleValid
+					// );
+
+					// Make sure that the device disconnect & reconnect events get
+					// fired.
+					test.ok(deviceDisconnectEventReceived, 'Disconnect event should have been detected');
+					test.ok(deviceReconnectEventReceived, 'Reconnect event should have been detected');
+					device.read('FIRMWARE_VERSION')
+					.then(function(res) {
+						test.strictEqual(res.toFixed(4), fwVersionNum.toFixed(4), 'Firmware Not Upgraded');
+						test.done();
+					});
 				}, function(err) {
-					console.log('Device is not responding anymore', err);
-					test.done();
-				});
+					console.log("Failed to upgrade (upgrade test)", err);
+					console.log('');
+					console.log('');
+					test.ok(true, 'Failed to upgrade device: ' + JSON.stringify(err));
+					device.read('FIRMWARE_VERSION')
+					.then(function(res) {
+						console.log('Device is still responding to messages', res);
+						test.done();
+					}, function(err) {
+						console.log('Device is not responding anymore', err);
+						test.done();
+					});
+				}
+			);
+		}
+		device.iRead('FIRMWARE_VERSION')
+		.then(function(res) {
+			if(res.val != fwVersionNum) {
+				performUpdate();
+			} else {
+				console.log('  - Skipping Primary FW Update, already', res);
+				test.ok(true);
+				test.done();
 			}
-		);
+		})
 	},
 	'Get FW Related Info': function(test) {
 		var deviceInfo = {};
