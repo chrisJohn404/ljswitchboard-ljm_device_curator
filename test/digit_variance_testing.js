@@ -2,6 +2,11 @@
 var q = require('q');
 var device_curator = require('../lib/device_curator');
 var utils = require('./utils/utils');
+var ljm_ffi = require('ljm-ffi');
+var ljm = ljm_ffi.load();
+var ljn = require('labjack-nodejs');
+var driver = ljn.driver();
+
 var qExec = utils.qExec;
 var async = require('async');
 var modbus_map = require('ljswitchboard-modbus_map').getConstants();
@@ -9,7 +14,8 @@ var modbus_map = require('ljswitchboard-modbus_map').getConstants();
 // Digit format functions
 var digit_format_functions = require('../lib/digit_format_functions');
 
-var devices;
+var devices = [];
+var deviceSerials = [];
 
 var criticalError = false;
 var stopTest = function(test, err) {
@@ -44,60 +50,95 @@ var device_tests = {
 		}
 		test.done();
 	},
-	'openDigit': function(test) {
-		var td = {
-			'dt': 'LJM_dtDIGIT',
-			'ct': 'LJM_ctUSB',
-			'id': 'LJM_idANY'
-		};
+	'list all digits...': function(test) {
+		var foundDevices = driver.listAllSync('LJM_dtDIGIT', 'LJM_ctUSB');
+		console.log('We found digits!', foundDevices.length);
+		deviceSerials = foundDevices.map(function(foundDevice) {
+			return foundDevice.serialNumber;
+		});
+		test.done();
+	},
+	'open all digits': function(test) {
+		console.log('Opening Devices', deviceSerials);
+		async.eachSeries(
+			deviceSerials,
+			function(deviceSerial, cb) {
+				var newDevice = new device_curator.device();
+				var td = {
+					'dt': 'LJM_dtDigit',
+					'ct': 'LJM_ctUSB',
+					'id': deviceSerial.toString(),
+				};
 
-		device.open(td.dt, td.ct, td.id)
-		.then(function(res) {
-			if(DEBUG_TEST) {
-				console.log(
-					"  - Opened Digit:",
-					res.productType,
-					res.connectionTypeName,
-					res.serialNumber
-				);
-			}
-			deviceFound = true;
-			test.done();
-		}, function(err) {
-			performTests = false;
-			test.done();
-		});
+				console.log('Opening Device', deviceSerial.toString());
+				newDevice.open(td.dt, td.ct, td.id)
+				.then(function(res) {
+					console.log('Opened Device', newDevice.savedAttributes.serialNumber);
+					devices.push(newDevice);
+					cb();
+				}, function(err) {
+					console.log('Failed to open device', err);
+					cb();
+				});
+			}, function(err) {
+				test.done();
+			});
 	},
-	'checkDigitDeviceInfo': function(test) {
-		device.getDeviceAttributes()
-		.then(function(res) {
-			test.strictEqual(res.deviceType, 200);
-			test.strictEqual(res.deviceTypeString, 'LJM_dtDIGIT');
-			test.strictEqual(res.connectionType, 1);
-			test.strictEqual(res.connectionTypeString, 'LJM_ctUSB');
-			test.done();
-		});
+	'print out device serial numbers': function(test) {
+		async.eachSeries(
+			devices,
+			function(device, cb) {
+				console.log('Opened...', device.savedAttributes.serialNumber);
+				cb();
+			}, function(err) {
+				test.done();
+			});
 	},
-	
 	'averageTLH Readings': function(test) {
-		var numReads = 10;
-		var operation = 'readTempLightHumidity';
+		var collectedData = [];
 
-		executeMany(operation, numReads)
-		.then(function(averagedData) {
-			console.log('Averaged Data', averagedData);
-			test.done();
-		});
+		async.eachSeries(
+			devices,
+			function(device, iterationCB) {
+				var numReads = 10;
+				var operation = 'readTempHumidityLight';
+
+				executeMany(device, operation, numReads)
+				.then(function(averagedData) {
+					// console.log('SN:', device.savedAttributes.serialNumber);
+					// console.log('Averaged Data', averagedData);
+
+					collectedData.push({
+						'SN': device.savedAttributes.serialNumber,
+						'temp': parseFloat(averagedData.temperature.toFixed(2)),
+						'lux': parseFloat(averagedData.light.toFixed(2))
+					});
+					iterationCB();
+				});
+			}, function(err) {
+				console.log('Finished Collecting Data:');
+				console.log(collectedData);
+				test.done();
+			});
 	},
 	'closeDigit': function(test) {
-		device.close()
-		.then(function() {
-			test.done();
-		});
+		async.eachSeries(
+			devices,
+			function(device, cb) {
+				device.close()
+				.then(function(res) {
+					console.log('Closed...', device.savedAttributes.serialNumber);
+					cb();
+				}, function(err) {
+					cb();
+				});
+			}, function(err) {
+				test.done();
+			});
 	},
 };
 
-var executeMany = function(operation, numIterations) {
+var executeMany = function(device, operation, numIterations) {
 	var defered = q.defer();
 	var executions = [];
 
