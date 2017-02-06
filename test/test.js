@@ -164,12 +164,13 @@ var testGroups = {
 		't4_basic_test': false,
 		't4_upgrade_test': false,
 		't4_dac_and_ain_test': false,
+		't4_flash_based_data_test': true,
 	},
 	't4_mock_tests': {
-		't4_basic_mock': true,
+		't4_basic_mock': false,
 	},
 	't5_mock_tests': {
-		't5_basic_mock': true,
+		't5_basic_mock': false,
 	},
 	'dashboard': {
 		'basic_test': false,
