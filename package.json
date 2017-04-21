@@ -34,6 +34,7 @@
   },
   "homepage": "https://github.com/chrisJohn404/ljswitchboard-ljm_device_curator",
   "dependencies": {
+    "lj-apps-win-registry-info": "git://github.com/chrisJohn404/lj-apps-win-registry-info.git#master",
     "async": "~0",
     "dict": "1.4.0",
     "q": "~1",
