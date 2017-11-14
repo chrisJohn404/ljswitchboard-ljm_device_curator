@@ -170,6 +170,8 @@ var testGroups = {
 		't4_upgrade_test': false,
 		't4_dac_and_ain_test': false,
 		't4_flash_based_data_test': false,
+		't4_is_auth_test': true,
+		't4_check_auth_and_upgrade_test': true,
 	},
 	't4_mock_tests': {
 		't4_basic_mock': false,
@@ -181,7 +183,7 @@ var testGroups = {
 		'basic_test': false,
 	},
 	'external_app_tests': {
-		'basic_test': true,
+		'basic_test': false, // Opens device and shares it with LJLogM and LJStreamM. (Starts and stops the apps to verify functionality)
 	},
 };
 

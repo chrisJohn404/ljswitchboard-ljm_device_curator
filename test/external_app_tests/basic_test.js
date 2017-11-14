@@ -52,7 +52,7 @@ exports.tests = {
         var td = {
             'dt': 'LJM_dtT4',
             'ct': 'LJM_ctUSB',
-            'id': 440010000,
+            'id': 'LJM_idANY',
         };
 
         // Open the device.
