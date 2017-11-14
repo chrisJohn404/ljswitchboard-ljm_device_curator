@@ -113,7 +113,7 @@ exports.tests = {
             console.error('LJM Error:', err);
             test.ok(false, 'device should still be connected');
             test.done();
-        })
+        });
     },
 	'closeDevices': function(test) {
         device.close()
