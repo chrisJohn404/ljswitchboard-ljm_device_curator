@@ -192,8 +192,13 @@ var testGroups = {
 		'basic_test': false,
 	},
 	'external_app_tests': {
-		'basic_test': true, // Opens device and shares it with LJLogM and LJStreamM. (Starts and stops the apps to verify functionality)
+		'basic_test': false, // Opens device and shares it with LJLogM and LJStreamM. (Starts and stops the apps to verify functionality)
 	},
+	't7_wifi_tests': {
+		't7_device_info_mimic': false,
+		't7_wifi_basic_test': false,
+		't7_wifi_load_lua_script': false,
+	}
 };
 
 
