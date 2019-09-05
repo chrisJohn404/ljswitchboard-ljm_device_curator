@@ -1,2 +1,2 @@
 exports.fwVersionNum = 1.0280;
-exports.fwVersionStr = (1.0280).toString();
+exports.fwVersionStr = '1.0280';
