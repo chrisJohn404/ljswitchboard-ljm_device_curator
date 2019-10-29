@@ -112,6 +112,9 @@ var testGroups = {
 		'multiple_mock_device_upgrade_test': false,
 		'basic_watcher_test': false,
 	},
+	'ljm_demo_mode': {
+		'basic_demo_mode_test': true,
+	},
 	'digit': {
 		'digit_basic_test': false,
 		'digit_variance_testing': false,
@@ -191,13 +194,13 @@ var testGroups = {
 		't4_read_recovery_fw_version_test': false,
 	},
 	't4_mock_tests': {
-		't4_basic_mock': true,
+		't4_basic_mock': false,
 	},
 	't5_mock_tests': {
-		't5_basic_mock': true,
+		't5_basic_mock': false,
 	},
 	't8_mock_tests': {
-		't8_basic_mock': true,
+		't8_basic_mock': false,
 	},
 	'dashboard': {
 		'basic_test': false,
