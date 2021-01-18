@@ -41,7 +41,8 @@ device.close()
 }).done();
 ```
 
-This library also generates important events in regards to device disconnection/reconnection/errors, etc.  It automatically detects when a device becomes disconnected or re-connected through the "DEVICE_DISCONNECTED" and "DEVICE_RECONNECTED" events. You can also attach a universal "DEVICE_ERROR" event listener to detect when any errors occur so that they don't have to be handled on a case-by-case basis.
+This library also generates important events in regards to device disconnection/reconnection/errors, etc.  It automatically detects when a device becomes disconnected or re-connected through the "DEVICE_DISCONNECTED" and "DEVICE_RECONNECTED" events. You can also attach a universal "DEVICE_ERROR" event listener to detect when any errors occur so that they don't have to be handled on a case-by-case basis.  "DEVICE_DISCONNECTED" events are thrown when communicating with the device, after successfully establishing communication, and receiving a 1239: LJME_RECONNECT_FAILED [LJM Error Code](https://labjack.com/support/software/api/ljm/error-codes).  Additional reads and writes may be performed however all calls will result in errors until the device becomes reconnected.
+
 
 ```javascript
 // Device disconnection event
