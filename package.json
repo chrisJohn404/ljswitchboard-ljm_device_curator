@@ -36,7 +36,7 @@
   },
   "homepage": "https://github.com/chrisJohn404/ljswitchboard-ljm_device_curator",
   "dependencies": {
-    "async": "1.5.2",
+    "async": "2.6.4",
     "compute-gcd": "1.2.0",
     "dict": "1.4.0",
     "dns-chk-https-get": "^1.0.0",
